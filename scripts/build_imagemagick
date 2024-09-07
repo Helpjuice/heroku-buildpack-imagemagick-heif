@@ -15,28 +15,26 @@ trap handle_error EXIT SIGINT
 
 function add_xenial_repositories() {
   cat <<-EOT >> /etc/apt/sources.list
-  deb http://archive.ubuntu.com/ubuntu/ xenial main universe
-  deb http://security.ubuntu.com/ubuntu xenial-security main
+  deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ xenial main universe
+  deb [trusted=yes] http://security.ubuntu.com/ubuntu xenial-security main
 EOT
 }
 
 # add source packages repository to sources.list
 function add_source_repositories() {
-  echo "deb-src http://archive.ubuntu.com/ubuntu/ xenial main universe" >> /etc/apt/sources.list
-  if [[ $STACK == "heroku-20" ]]; then
-    add_xenial_repositories
-  fi
+  gpg --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5
+  gpg --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
+  echo "deb-src [trusted=yes] http://archive.ubuntu.com/ubuntu/ xenial main universe" >> /etc/apt/sources.list
+  add_xenial_repositories
 }
 
 add_source_repositories
 
 echo "⚙️ Getting libraries and dependencies..."
-apt-get update -y
+apt-get update -y --allow-unauthenticated
 apt-get install -y build-essential autoconf libtool git-core
-if [[ $STACK == "heroku-20" ]]; then
-  echo "⚙️ Getting additional dependencies for the selected stack..."
-  apt-get install -y libomp5 libomp-10-dev libjasper-dev
-fi
+echo "⚙️ Getting additional dependencies for the selected stack..."
+apt-get install -y libomp5 libomp-dev libjasper-dev
 apt-get build-dep -y imagemagick libmagickcore-dev
 
 # install the libde265 library
@@ -49,14 +47,17 @@ cd $WORK_DIR/libde265
 echo "⚙️ Installing and configuring libheif..."
 git clone https://github.com/strukturag/libheif.git $WORK_DIR/libheif
 cd $WORK_DIR/libheif
-./autogen.sh && ./configure && make && make install
+mkdir build
+cd build
+cmake --preset=release ..
+make && make install
 
 # get, configure and install imagemagick
 echo "⚙️ Installing imagemagick..."
-wget https://imagemagick.org/archive/ImageMagick-6.9.12-60.tar.gz -P $WORK_DIR
+wget https://imagemagick.org/archive/ImageMagick-6.9.13-16.tar.gz -P $WORK_DIR
 cd $WORK_DIR
 mkdir imagemagick
-tar xvfz ImageMagick-6.9.12-60.tar.gz -C $WORK_DIR/imagemagick --strip-components=1
+tar xvfz ImageMagick-6.9.13-16.tar.gz -C $WORK_DIR/imagemagick --strip-components=1
 cd $WORK_DIR/imagemagick
 ./configure --with-heic=yes --prefix=$WORK_DIR/imagemagick --without-gvc
 make && make install

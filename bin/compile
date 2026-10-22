@@ -53,8 +53,8 @@ function vendor() {
   export LD_LIBRARY_PATH="$path/lib:$LD_LIBRARY_PATH"
 }
 
-# heroku-26 ships ImageMagick 7 with libheif, which already reads HEIC/HEIF/AVIF
-if [ "$STACK" = "heroku-26" ]; then
+# heroku-24 (ImageMagick 6) and heroku-26 (ImageMagick 7) ship libheif, which already reads HEIC/HEIF/AVIF
+if [ "$STACK" = "heroku-24" ] || [ "$STACK" = "heroku-26" ]; then
   echo "Stack ${STACK} includes ImageMagick with HEIC support, skipping vendoring" | arrow
   exit 0
 fi

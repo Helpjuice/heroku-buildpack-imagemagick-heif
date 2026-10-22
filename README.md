@@ -15,7 +15,7 @@ You will need to build a new binary if you want to use a newer or different vers
 
 This buildpack currently supports **Heroku 16** and **Heroku 20** and contains **ImageMagick 7.0.11-4 Q16 x86_64** https://imagemagick.org
 
-On **Heroku 26** the buildpack does nothing: the stack itself ships ImageMagick 7 with libheif, which can read HEIC/HEIF/AVIF (but not write HEIC). You can also remove the buildpack from heroku-26 apps.
+On **Heroku 24** and **Heroku 26** the buildpack does nothing: the stack itself ships ImageMagick (6.9.12 on heroku-24, 7 on heroku-26) with libheif, which can read HEIC/HEIF/AVIF (but not write HEIC). You can also remove the buildpack from apps on those stacks.
 
 ## Usage
 
